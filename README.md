@@ -1,4 +1,4 @@
-# Izanagi
+# Raycaster Demo
 
 ## Description
 
