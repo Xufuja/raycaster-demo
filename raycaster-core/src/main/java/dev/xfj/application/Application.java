@@ -2,17 +2,28 @@ package dev.xfj.application;
 
 import dev.xfj.Layer;
 import dev.xfj.LayerStack;
-import imgui.ImGui;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
+import dev.xfj.events.Event;
+import dev.xfj.events.EventDispatcher;
+import dev.xfj.events.application.WindowCloseEvent;
+import dev.xfj.events.key.KeyPressedEvent;
+import dev.xfj.events.key.KeyReleasedEvent;
+import dev.xfj.events.key.KeyTypedEvent;
+import dev.xfj.events.mouse.MouseButtonPressedEvent;
+import dev.xfj.events.mouse.MouseButtonReleasedEvent;
+import dev.xfj.events.mouse.MouseMovedEvent;
+import dev.xfj.events.mouse.MouseScrolledEvent;
+import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL41;
+
+import java.util.ListIterator;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Application {
     private static Application instance;
-    private ApplicationSpecification specification;
+    private final ApplicationSpecification specification;
     private long windowHandle;
     private boolean running;
     private float timeStep;
@@ -44,6 +55,7 @@ public class Application {
             });
         }
         windowHandle = glfwCreateWindow(specification.width, specification.height, specification.name, NULL, NULL);
+        setEventCallback(this::onEvent);
 
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 4);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 5);
@@ -51,27 +63,104 @@ public class Application {
         glfwMakeContextCurrent(windowHandle);
         GL.createCapabilities();
 
-        ImGui.createContext();
+        glfwSetWindowCloseCallback(windowHandle, new GLFWWindowCloseCallback() {
+            @Override
+            public void invoke(long window) {
+                WindowCloseEvent event = new WindowCloseEvent();
+                specification.eventCallback.handle(event);
+            }
+        });
+
+        glfwSetKeyCallback(windowHandle, new GLFWKeyCallback() {
+            @Override
+            public void invoke(long window, int key, int scanCode, int action, int mods) {
+                switch (action) {
+                    case GLFW_PRESS -> {
+                        KeyPressedEvent event = new KeyPressedEvent(key);
+                        specification.eventCallback.handle(event);
+                    }
+                    case GLFW_RELEASE -> {
+                        KeyReleasedEvent event = new KeyReleasedEvent(key);
+                        specification.eventCallback.handle(event);
+                    }
+                    case GLFW_REPEAT -> {
+                        KeyPressedEvent event = new KeyPressedEvent(key, true);
+                        specification.eventCallback.handle(event);
+                    }
+                }
+            }
+        });
+        glfwSetCharCallback(windowHandle, new GLFWCharCallback() {
+            @Override
+            public void invoke(long window, int keyCode) {
+                KeyTypedEvent event = new KeyTypedEvent(keyCode);
+                specification.eventCallback.handle(event);
+            }
+        });
+        glfwSetMouseButtonCallback(windowHandle, new GLFWMouseButtonCallback() {
+            @Override
+            public void invoke(long window, int button, int action, int mods) {
+                switch (action) {
+                    case GLFW_PRESS -> {
+                        MouseButtonPressedEvent event = new MouseButtonPressedEvent(button);
+                        specification.eventCallback.handle(event);
+                    }
+                    case GLFW_RELEASE -> {
+                        MouseButtonReleasedEvent event = new MouseButtonReleasedEvent(button);
+                        specification.eventCallback.handle(event);
+                    }
+                }
+            }
+        });
+        glfwSetScrollCallback(windowHandle, new GLFWScrollCallback() {
+            @Override
+            public void invoke(long window, double xOffset, double yOffset) {
+                MouseScrolledEvent event = new MouseScrolledEvent((float) xOffset, (float) yOffset); //Why the cast?
+                specification.eventCallback.handle(event);
+            }
+        });
+        glfwSetCursorPosCallback(windowHandle, new GLFWCursorPosCallback() {
+            @Override
+            public void invoke(long window, double xPosition, double yPosition) {
+                MouseMovedEvent event = new MouseMovedEvent((float) xPosition, (float) yPosition);
+                specification.eventCallback.handle(event);
+            }
+        });
     }
 
     public void run() {
         running = true;
 
         while (running) {
-            glfwPollEvents();
+            GL41.glClear(GL41.GL_COLOR_BUFFER_BIT | GL41.GL_DEPTH_BUFFER_BIT);
 
             for (Layer layer : layerStack.getLayers()) {
                 layer.onUpdate(timeStep);
             }
 
+            glfwPollEvents();
             glfwSwapBuffers(windowHandle);
 
             float time = getTime();
             frameTime = time - lastFrameTime;
             timeStep = Math.min(frameTime, 0.0333f);
             lastFrameTime = time;
-
         }
+    }
+
+    public void onEvent(Event event) {
+        EventDispatcher eventDispatcher = new EventDispatcher(event);
+        eventDispatcher.dispatch(WindowCloseEvent.class, this::onWindowClose);
+
+        ListIterator<Layer> it = layerStack.getLayers().listIterator(layerStack.getLayers().size());
+        while (it.hasPrevious()) {
+            Layer layer = it.previous();
+            if (event.isHandled()) {
+                break;
+            }
+            layer.onEvent(event);
+        }
+
     }
 
     public void pushLayer(Layer layer) {
@@ -90,15 +179,16 @@ public class Application {
         return instance;
     }
 
-    public static void close(Application instance) {
-        instance.close();
-    }
-
-    private void close() {
-        this.running = false;
+    private boolean onWindowClose(WindowCloseEvent windowCloseEvent) {
+        running = false;
+        return true;
     }
 
     public long getWindowHandle() {
         return windowHandle;
+    }
+
+    public void setEventCallback(EventCallBack.EventCallbackFn callback) {
+        specification.eventCallback = callback;
     }
 }

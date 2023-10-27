@@ -2,7 +2,6 @@ package dev.xfj;
 
 import dev.xfj.application.Application;
 import dev.xfj.application.ApplicationSpecification;
-import imgui.ImGui;
 
 public class Main {
     public static void main(String[] args) {
