@@ -34,6 +34,7 @@ public class AppLayer implements Layer {
     public void onAttach() {
         GL41.glClearColor(0.3f, 0.3f, 0.3f, 0);
         GL41.glOrtho(0, 1024, 510, 0, -1, 1);
+
         px = 150;
         py = 400;
         pa = 90;
@@ -66,7 +67,6 @@ public class AppLayer implements Layer {
 
     private boolean onKeyPressed(KeyPressedEvent event) {
         switch (event.getKeyCode()) {
-
             case KeyCodes.A -> {
                 pa += 5;
                 pa = fixAng((int) pa);
@@ -101,8 +101,10 @@ public class AppLayer implements Layer {
                 } else {
                     GL41.glColor3f(0, 0, 0);
                 }
+
                 xo = x * MAP_S;
                 yo = y * MAP_S;
+
                 GL41.glBegin(GL41.GL_QUADS);
                 GL41.glVertex2i(0 + xo + 1, 0 + yo + 1);
                 GL41.glVertex2i(0 + xo + 1, MAP_S + yo - 1);
@@ -134,6 +136,7 @@ public class AppLayer implements Layer {
         GL41.glBegin(GL41.GL_POINTS);
         GL41.glVertex2i((int) px, (int) py);
         GL41.glEnd();
+
         GL41.glBegin(GL41.GL_LINES);
         GL41.glVertex2i((int) px, (int) py);
         GL41.glVertex2i((int) (px + pdx * 20), (int) (py + pdy * 20));
@@ -148,6 +151,7 @@ public class AppLayer implements Layer {
         GL41.glVertex2i(1006, 160);
         GL41.glVertex2i(526, 160);
         GL41.glEnd();
+
         GL41.glColor3f(0, 0, 1);
         GL41.glBegin(GL41.GL_QUADS);
         GL41.glVertex2i(526, 160);
@@ -181,6 +185,7 @@ public class AppLayer implements Layer {
             side = 0;
             disV = 100000;
             float Tan = tan(degToRad((int) ra));
+
             if (cos(degToRad((int) ra)) > 0.001) {
                 rx = (((int) px >> 6) << 6) + 64;
                 ry = (px - rx) * Tan + py;
@@ -203,6 +208,7 @@ public class AppLayer implements Layer {
                 mx = (int) (rx) >> 6;
                 my = (int) (ry) >> 6;
                 mp = my * MAP_X + mx;
+
                 if (mp > 0 && mp < MAP_X * MAP_Y && MAP[mp] == 1) {
                     dof = 8;
                     disV = cos(degToRad((int) ra)) * (rx - px) - sin(degToRad((int) ra)) * (ry - py);
@@ -213,6 +219,7 @@ public class AppLayer implements Layer {
                     dof += 1;
                 }                                               //check next horizontal
             }
+
             vx = rx;
             vy = ry;
 
@@ -220,6 +227,7 @@ public class AppLayer implements Layer {
             dof = 0;
             disH = 100000;
             Tan = (float) (1.0 / Tan);
+
             if (sin(degToRad((int) ra)) > 0.001) {
                 ry = (float) ((((int) py >> 6) << 6) - 0.0001);
                 rx = (py - ry) * Tan + px;
@@ -254,12 +262,14 @@ public class AppLayer implements Layer {
             }
 
             GL41.glColor3f(0.0f, 0.8f, 0);
+
             if (disV < disH) {
                 rx = vx;
                 ry = vy;
                 disH = disV;
                 GL41.glColor3f(0.0f, 0.6f, 0);
             }                  //horizontal hit first
+
             GL41.glLineWidth(2);
             GL41.glBegin(GL41.GL_LINES);
             GL41.glVertex2i((int) px, (int) py);
@@ -269,9 +279,11 @@ public class AppLayer implements Layer {
             int ca = fixAng((int) (pa - ra));
             disH = disH * cos(degToRad(ca));                            //fix fisheye
             int lineH = (int) ((MAP_S * 320) / (disH));
+
             if (lineH > 320) {
                 lineH = 320;
             }                     //line height and limit
+
             int lineOff = 160 - (lineH >> 1);                                               //line offset
 
             GL41.glLineWidth(8);

@@ -30,6 +30,7 @@ public class Application {
     private float frameTime;
     private float lastFrameTime;
     private LayerStack layerStack;
+    public EventCallBack.EventCallbackFn eventCallback;
 
     public Application(ApplicationSpecification specification) {
         this.specification = specification;
@@ -55,7 +56,7 @@ public class Application {
             });
         }
         windowHandle = glfwCreateWindow(specification.width, specification.height, specification.name, NULL, NULL);
-        setEventCallback(this::onEvent);
+        eventCallback = this::onEvent;
 
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 4);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 5);
@@ -67,7 +68,7 @@ public class Application {
             @Override
             public void invoke(long window) {
                 WindowCloseEvent event = new WindowCloseEvent();
-                specification.eventCallback.handle(event);
+                eventCallback.handle(event);
             }
         });
 
@@ -77,53 +78,57 @@ public class Application {
                 switch (action) {
                     case GLFW_PRESS -> {
                         KeyPressedEvent event = new KeyPressedEvent(key);
-                        specification.eventCallback.handle(event);
+                        eventCallback.handle(event);
                     }
                     case GLFW_RELEASE -> {
                         KeyReleasedEvent event = new KeyReleasedEvent(key);
-                        specification.eventCallback.handle(event);
+                        eventCallback.handle(event);
                     }
                     case GLFW_REPEAT -> {
                         KeyPressedEvent event = new KeyPressedEvent(key, true);
-                        specification.eventCallback.handle(event);
+                        eventCallback.handle(event);
                     }
                 }
             }
         });
+
         glfwSetCharCallback(windowHandle, new GLFWCharCallback() {
             @Override
             public void invoke(long window, int keyCode) {
                 KeyTypedEvent event = new KeyTypedEvent(keyCode);
-                specification.eventCallback.handle(event);
+                eventCallback.handle(event);
             }
         });
+
         glfwSetMouseButtonCallback(windowHandle, new GLFWMouseButtonCallback() {
             @Override
             public void invoke(long window, int button, int action, int mods) {
                 switch (action) {
                     case GLFW_PRESS -> {
                         MouseButtonPressedEvent event = new MouseButtonPressedEvent(button);
-                        specification.eventCallback.handle(event);
+                        eventCallback.handle(event);
                     }
                     case GLFW_RELEASE -> {
                         MouseButtonReleasedEvent event = new MouseButtonReleasedEvent(button);
-                        specification.eventCallback.handle(event);
+                        eventCallback.handle(event);
                     }
                 }
             }
         });
+
         glfwSetScrollCallback(windowHandle, new GLFWScrollCallback() {
             @Override
             public void invoke(long window, double xOffset, double yOffset) {
                 MouseScrolledEvent event = new MouseScrolledEvent((float) xOffset, (float) yOffset); //Why the cast?
-                specification.eventCallback.handle(event);
+                eventCallback.handle(event);
             }
         });
+
         glfwSetCursorPosCallback(windowHandle, new GLFWCursorPosCallback() {
             @Override
             public void invoke(long window, double xPosition, double yPosition) {
                 MouseMovedEvent event = new MouseMovedEvent((float) xPosition, (float) yPosition);
-                specification.eventCallback.handle(event);
+                eventCallback.handle(event);
             }
         });
     }
@@ -155,9 +160,11 @@ public class Application {
         ListIterator<Layer> it = layerStack.getLayers().listIterator(layerStack.getLayers().size());
         while (it.hasPrevious()) {
             Layer layer = it.previous();
+
             if (event.isHandled()) {
                 break;
             }
+
             layer.onEvent(event);
         }
 
@@ -186,9 +193,5 @@ public class Application {
 
     public long getWindowHandle() {
         return windowHandle;
-    }
-
-    public void setEventCallback(EventCallBack.EventCallbackFn callback) {
-        specification.eventCallback = callback;
     }
 }
