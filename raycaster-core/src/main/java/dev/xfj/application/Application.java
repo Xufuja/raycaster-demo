@@ -146,7 +146,7 @@ public class Application {
             glfwPollEvents();
             glfwSwapBuffers(windowHandle);
 
-            float time = getTime();
+            float time = (float) glfwGetTime();
             frameTime = time - lastFrameTime;
             timeStep = Math.min(frameTime, 0.0333f);
             lastFrameTime = time;
@@ -179,7 +179,7 @@ public class Application {
     }
 
     public float getTime() {
-        return (float) glfwGetTime();
+        return timeStep;
     }
 
     public static Application getInstance() {
