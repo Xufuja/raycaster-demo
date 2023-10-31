@@ -57,7 +57,7 @@ public class AppLayer implements Layer {
     private static final int[] sprites = loadArray("textures\\sprites.txt");
     private static final int[] title = loadArray("textures\\title.txt");
     private static final int[] won = loadArray("textures\\won.txt");
-    
+
     private float px;
     private float py;
     private float pdx;
@@ -76,8 +76,9 @@ public class AppLayer implements Layer {
     }
 
     private void init() {
-        GL41.glOrtho(0, 960, 640, 0, -1, 1);
         GL41.glClearColor(0.3f, 0.3f, 0.3f, 0);
+        GL41.glOrtho(0, 960, 640, 0, -1, 1);
+
         px = 150;
         py = 400;
         pa = 90;
@@ -120,7 +121,16 @@ public class AppLayer implements Layer {
     @Override
     public void onUpdate(float ts) {
         fps = ts;
-        if (gameState == 0) {
+        gameState = 2;
+        drawSky();
+        drawRays2D();
+        drawSprite();
+        if ((int) px >> 6 == 1 && (int) py >> 6 == 1) {
+            fade = 0;
+            timer = 0;
+            gameState = 3;
+        } //Entered block 1, Win game!!
+        /*if (gameState == 0) {
             init();
             fade = 0;
             timer = 0;
@@ -135,7 +145,17 @@ public class AppLayer implements Layer {
                 gameState = 2;
             }
         } //start screen
-
+        if (gameState == 2) //The main game loop
+        {
+            drawSky();
+            drawRays2D();
+            drawSprite();
+            if ((int) px >> 6 == 1 && (int) py >> 6 == 1) {
+                fade = 0;
+                timer = 0;
+                gameState = 3;
+            } //Entered block 1, Win game!!
+        }
 
         if (gameState == 3) {
             screen(2);
@@ -154,7 +174,7 @@ public class AppLayer implements Layer {
                 timer = 0;
                 gameState = 0;
             }
-        } //lost screen
+        } //lost screen*/
     }
 
     @Override
@@ -243,14 +263,7 @@ public class AppLayer implements Layer {
                     mapW[ipy_add_yo * MAP_X + ipx_add_xo] = 0;
                 }
             }
-            drawSky();
-            drawRays2D();
-            drawSprite();
-            if ((int) px >> 6 == 1 && (int) py >> 6 == 1) {
-                fade = 0;
-                timer = 0;
-                gameState = 3;
-            } //Entered block 1, Win game!!
+
         }
 
 
