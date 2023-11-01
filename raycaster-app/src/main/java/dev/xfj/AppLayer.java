@@ -120,7 +120,8 @@ public class AppLayer implements Layer {
 
     @Override
     public void onUpdate(float ts) {
-        fps = 16;
+        //glutGet(GLUT_ELAPSED_TIME) is in ms whereas glfwGetTime is in seconds
+        fps = ts * 1000;
         if (gameState == 0) {
             //init();
             fade = 0;
