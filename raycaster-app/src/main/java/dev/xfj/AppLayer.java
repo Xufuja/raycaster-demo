@@ -120,18 +120,9 @@ public class AppLayer implements Layer {
 
     @Override
     public void onUpdate(float ts) {
-        fps = ts;
-        gameState = 2;
-        drawSky();
-        drawRays2D();
-        drawSprite();
-        if ((int) px >> 6 == 1 && (int) py >> 6 == 1) {
-            fade = 0;
-            timer = 0;
-            gameState = 3;
-        } //Entered block 1, Win game!!
-        /*if (gameState == 0) {
-            init();
+        fps = 16;
+        if (gameState == 0) {
+            //init();
             fade = 0;
             timer = 0;
             gameState = 1;
@@ -174,7 +165,7 @@ public class AppLayer implements Layer {
                 timer = 0;
                 gameState = 0;
             }
-        } //lost screen*/
+        } //lost screen
     }
 
     @Override
