@@ -183,20 +183,6 @@ public class AppLayer implements Layer {
     private boolean onKeyPressed(KeyPressedEvent event) {
         if (gameState == 2) //The main game loop
         {
-            //buttons
-            if (event.getKeyCode() == KeyCodes.A) {
-                pa += 0.2 * fps;
-                pa = fixAng((int) pa);
-                pdx = cos(degToRad((int) pa));
-                pdy = -sin(degToRad((int) pa));
-            }
-            if (event.getKeyCode() == KeyCodes.D) {
-                pa -= 0.2 * fps;
-                pa = fixAng((int) pa);
-                pdx = cos(degToRad((int) pa));
-                pdy = -sin(degToRad((int) pa));
-            }
-
             int xo = 0;
             if (pdx < 0) {
                 xo = -20;
@@ -215,50 +201,65 @@ public class AppLayer implements Layer {
             int ipy = (int) (py / 64.0f);
             int ipy_add_yo = (int) ((py + yo) / 64.0f);
             int ipy_sub_yo = (int) ((py - yo) / 64.0f);             //y position and offset
-            if (event.getKeyCode() == KeyCodes.W)                                                                  //move forward
-            {
-                if (mapW[ipy * MAP_X + ipx_add_xo] == 0) {
-                    px += pdx * 0.2 * fps;
+            //buttons
+            switch (event.getKeyCode()) {
+                case KeyCodes.A: {
+                    pa += 0.2 * fps;
+                    pa = fixAng((int) pa);
+                    pdx = cos(degToRad((int) pa));
+                    pdy = -sin(degToRad((int) pa));
+                    break;
                 }
-                if (mapW[ipy_add_yo * MAP_X + ipx] == 0) {
-                    py += pdy * 0.2 * fps;
+                case KeyCodes.D: {
+                    pa -= 0.2 * fps;
+                    pa = fixAng((int) pa);
+                    pdx = cos(degToRad((int) pa));
+                    pdy = -sin(degToRad((int) pa));
+                    break;
                 }
-            }
-            if (event.getKeyCode() == KeyCodes.S)                                                                  //move backward
-            {
-                if (mapW[ipy * MAP_X + ipx_sub_xo] == 0) {
-                    px -= pdx * 0.2 * fps;
+                case KeyCodes.W: {
+                    if (mapW[ipy * MAP_X + ipx_add_xo] == 0) {
+                        px += pdx * 0.2 * fps;
+                    }
+                    if (mapW[ipy_add_yo * MAP_X + ipx] == 0) {
+                        py += pdy * 0.2 * fps;
+                    }
+                    break;
                 }
-                if (mapW[ipy_sub_yo * MAP_X + ipx] == 0) {
-                    py -= pdy * 0.2 * fps;
+                case KeyCodes.S: {
+                    if (mapW[ipy * MAP_X + ipx_sub_xo] == 0) {
+                        px -= pdx * 0.2 * fps;
+                    }
+                    if (mapW[ipy_sub_yo * MAP_X + ipx] == 0) {
+                        py -= pdy * 0.2 * fps;
+                    }
+                    break;
                 }
-            }
-            if (event.getKeyCode() == KeyCodes.E)                                                                  //move backward
-            {
-                xo = 0;
-                if (pdx < 0) {
-                    xo = -25;
-                } else {
-                    xo = 25;
-                }
-                yo = 0;
-                if (pdy < 0) {
-                    yo = -25;
-                } else {
-                    yo = 25;
-                }
-                ipx = (int) (px / 64.0f);
-                ipx_add_xo = (int) ((px + xo) / 64.0f);
-                ipy = (int) (py / 64.0f);
-                ipy_add_yo = (int) ((py + yo) / 64.0f);
-                if (mapW[ipy_add_yo * MAP_X + ipx_add_xo] == 4) {
-                    mapW[ipy_add_yo * MAP_X + ipx_add_xo] = 0;
+                case KeyCodes.E: {
+                    xo = 0;
+                    if (pdx < 0) {
+                        xo = -25;
+                    } else {
+                        xo = 25;
+                    }
+                    yo = 0;
+                    if (pdy < 0) {
+                        yo = -25;
+                    } else {
+                        yo = 25;
+                    }
+                    ipx = (int) (px / 64.0f);
+                    ipx_add_xo = (int) ((px + xo) / 64.0f);
+                    ipy = (int) (py / 64.0f);
+                    ipy_add_yo = (int) ((py + yo) / 64.0f);
+                    if (mapW[ipy_add_yo * MAP_X + ipx_add_xo] == 4) {
+                        mapW[ipy_add_yo * MAP_X + ipx_add_xo] = 0;
+                    }
+                    break;
                 }
             }
 
         }
-
-
         return false;
     }
 
