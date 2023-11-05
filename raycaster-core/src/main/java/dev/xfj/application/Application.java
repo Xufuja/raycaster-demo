@@ -30,7 +30,7 @@ public class Application {
     private float frameTime;
     private float lastFrameTime;
     private LayerStack layerStack;
-    public EventCallBack.EventCallbackFn eventCallback;
+    private EventCallBack.EventCallbackFn eventCallback;
 
     public Application(ApplicationSpecification specification) {
         this.specification = specification;
@@ -72,65 +72,6 @@ public class Application {
             }
         });
 
-        glfwSetKeyCallback(windowHandle, new GLFWKeyCallback() {
-            @Override
-            public void invoke(long window, int key, int scanCode, int action, int mods) {
-                switch (action) {
-                    case GLFW_PRESS -> {
-                        KeyPressedEvent event = new KeyPressedEvent(key);
-                        eventCallback.handle(event);
-                    }
-                    case GLFW_RELEASE -> {
-                        KeyReleasedEvent event = new KeyReleasedEvent(key);
-                        eventCallback.handle(event);
-                    }
-                    case GLFW_REPEAT -> {
-                        KeyPressedEvent event = new KeyPressedEvent(key, true);
-                        eventCallback.handle(event);
-                    }
-                }
-            }
-        });
-
-        glfwSetCharCallback(windowHandle, new GLFWCharCallback() {
-            @Override
-            public void invoke(long window, int keyCode) {
-                KeyTypedEvent event = new KeyTypedEvent(keyCode);
-                eventCallback.handle(event);
-            }
-        });
-
-        glfwSetMouseButtonCallback(windowHandle, new GLFWMouseButtonCallback() {
-            @Override
-            public void invoke(long window, int button, int action, int mods) {
-                switch (action) {
-                    case GLFW_PRESS -> {
-                        MouseButtonPressedEvent event = new MouseButtonPressedEvent(button);
-                        eventCallback.handle(event);
-                    }
-                    case GLFW_RELEASE -> {
-                        MouseButtonReleasedEvent event = new MouseButtonReleasedEvent(button);
-                        eventCallback.handle(event);
-                    }
-                }
-            }
-        });
-
-        glfwSetScrollCallback(windowHandle, new GLFWScrollCallback() {
-            @Override
-            public void invoke(long window, double xOffset, double yOffset) {
-                MouseScrolledEvent event = new MouseScrolledEvent((float) xOffset, (float) yOffset); //Why the cast?
-                eventCallback.handle(event);
-            }
-        });
-
-        glfwSetCursorPosCallback(windowHandle, new GLFWCursorPosCallback() {
-            @Override
-            public void invoke(long window, double xPosition, double yPosition) {
-                MouseMovedEvent event = new MouseMovedEvent((float) xPosition, (float) yPosition);
-                eventCallback.handle(event);
-            }
-        });
     }
 
     public void run() {

@@ -3,6 +3,7 @@ package dev.xfj;
 import dev.xfj.events.Event;
 import dev.xfj.events.EventDispatcher;
 import dev.xfj.events.key.KeyPressedEvent;
+import dev.xfj.input.Input;
 import dev.xfj.input.KeyCodes;
 import org.joml.Math;
 import org.lwjgl.opengl.GL41;
@@ -139,6 +140,74 @@ public class AppLayer implements Layer {
         } //start screen
         if (gameState == 2) //The main game loop
         {
+            int xo = 0;
+            if (pdx < 0) {
+                xo = -20;
+            } else {
+                xo = 20;
+            }                                    //x offset to check map
+            int yo = 0;
+            if (pdy < 0) {
+                yo = -20;
+            } else {
+                yo = 20;
+            }                                    //y offset to check map
+            int ipx = (int) (px / 64.0f);
+            int ipx_add_xo = (int) ((px + xo) / 64.0f);
+            int ipx_sub_xo = (int) ((px - xo) / 64.0f);             //x position and offset
+            int ipy = (int) (py / 64.0f);
+            int ipy_add_yo = (int) ((py + yo) / 64.0f);
+            int ipy_sub_yo = (int) ((py - yo) / 64.0f);             //y position and offset
+            //buttons
+
+            if (Input.isKeyDown(KeyCodes.A)) {
+                pa += 0.2 * fps;
+                pa = fixAng((int) pa);
+                pdx = cos(degToRad((int) pa));
+                pdy = -sin(degToRad((int) pa));
+            } else if (Input.isKeyDown(KeyCodes.D)) {
+                pa -= 0.2 * fps;
+                pa = fixAng((int) pa);
+                pdx = cos(degToRad((int) pa));
+                pdy = -sin(degToRad((int) pa));
+            }
+            if (Input.isKeyDown(KeyCodes.W)) {
+                if (mapW[ipy * MAP_X + ipx_add_xo] == 0) {
+                    px += pdx * 0.2 * fps;
+                }
+                if (mapW[ipy_add_yo * MAP_X + ipx] == 0) {
+                    py += pdy * 0.2 * fps;
+                }
+            } else if (Input.isKeyDown(KeyCodes.S)) {
+                if (mapW[ipy * MAP_X + ipx_sub_xo] == 0) {
+                    px -= pdx * 0.2 * fps;
+                }
+                if (mapW[ipy_sub_yo * MAP_X + ipx] == 0) {
+                    py -= pdy * 0.2 * fps;
+                }
+            }
+            if (Input.isKeyDown(KeyCodes.E)) {
+                xo = 0;
+                if (pdx < 0) {
+                    xo = -25;
+                } else {
+                    xo = 25;
+                }
+                yo = 0;
+                if (pdy < 0) {
+                    yo = -25;
+                } else {
+                    yo = 25;
+                }
+                ipx = (int) (px / 64.0f);
+                ipx_add_xo = (int) ((px + xo) / 64.0f);
+                ipy = (int) (py / 64.0f);
+                ipy_add_yo = (int) ((py + yo) / 64.0f);
+                if (mapW[ipy_add_yo * MAP_X + ipx_add_xo] == 4) {
+                    mapW[ipy_add_yo * MAP_X + ipx_add_xo] = 0;
+                }
+            }
+
             drawSky();
             drawRays2D();
             drawSprite();
@@ -176,91 +245,7 @@ public class AppLayer implements Layer {
 
     @Override
     public void onEvent(Event event) {
-        EventDispatcher eventDispatcher = new EventDispatcher(event);
-        eventDispatcher.dispatch(KeyPressedEvent.class, this::onKeyPressed);
-    }
-
-    private boolean onKeyPressed(KeyPressedEvent event) {
-        if (gameState == 2) //The main game loop
-        {
-            int xo = 0;
-            if (pdx < 0) {
-                xo = -20;
-            } else {
-                xo = 20;
-            }                                    //x offset to check map
-            int yo = 0;
-            if (pdy < 0) {
-                yo = -20;
-            } else {
-                yo = 20;
-            }                                    //y offset to check map
-            int ipx = (int) (px / 64.0f);
-            int ipx_add_xo = (int) ((px + xo) / 64.0f);
-            int ipx_sub_xo = (int) ((px - xo) / 64.0f);             //x position and offset
-            int ipy = (int) (py / 64.0f);
-            int ipy_add_yo = (int) ((py + yo) / 64.0f);
-            int ipy_sub_yo = (int) ((py - yo) / 64.0f);             //y position and offset
-            //buttons
-            switch (event.getKeyCode()) {
-                case KeyCodes.A: {
-                    pa += 0.2 * fps;
-                    pa = fixAng((int) pa);
-                    pdx = cos(degToRad((int) pa));
-                    pdy = -sin(degToRad((int) pa));
-                    break;
-                }
-                case KeyCodes.D: {
-                    pa -= 0.2 * fps;
-                    pa = fixAng((int) pa);
-                    pdx = cos(degToRad((int) pa));
-                    pdy = -sin(degToRad((int) pa));
-                    break;
-                }
-                case KeyCodes.W: {
-                    if (mapW[ipy * MAP_X + ipx_add_xo] == 0) {
-                        px += pdx * 0.2 * fps;
-                    }
-                    if (mapW[ipy_add_yo * MAP_X + ipx] == 0) {
-                        py += pdy * 0.2 * fps;
-                    }
-                    break;
-                }
-                case KeyCodes.S: {
-                    if (mapW[ipy * MAP_X + ipx_sub_xo] == 0) {
-                        px -= pdx * 0.2 * fps;
-                    }
-                    if (mapW[ipy_sub_yo * MAP_X + ipx] == 0) {
-                        py -= pdy * 0.2 * fps;
-                    }
-                    break;
-                }
-                case KeyCodes.E: {
-                    xo = 0;
-                    if (pdx < 0) {
-                        xo = -25;
-                    } else {
-                        xo = 25;
-                    }
-                    yo = 0;
-                    if (pdy < 0) {
-                        yo = -25;
-                    } else {
-                        yo = 25;
-                    }
-                    ipx = (int) (px / 64.0f);
-                    ipx_add_xo = (int) ((px + xo) / 64.0f);
-                    ipy = (int) (py / 64.0f);
-                    ipy_add_yo = (int) ((py + yo) / 64.0f);
-                    if (mapW[ipy_add_yo * MAP_X + ipx_add_xo] == 4) {
-                        mapW[ipy_add_yo * MAP_X + ipx_add_xo] = 0;
-                    }
-                    break;
-                }
-            }
-
-        }
-        return false;
+        System.out.println("Not implemented!");
     }
 
     private static int[] loadArray(String path) {
