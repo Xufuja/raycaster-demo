@@ -1,8 +1,5 @@
 package dev.xfj;
 
-import dev.xfj.events.Event;
-import dev.xfj.events.EventDispatcher;
-import dev.xfj.events.key.KeyPressedEvent;
 import dev.xfj.input.Input;
 import dev.xfj.input.KeyCodes;
 import org.joml.Math;
@@ -241,11 +238,6 @@ public class AppLayer implements Layer {
     @Override
     public void onUIRender() {
 
-    }
-
-    @Override
-    public void onEvent(Event event) {
-        System.out.println("Not implemented!");
     }
 
     private static int[] loadArray(String path) {

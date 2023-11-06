@@ -2,21 +2,11 @@ package dev.xfj.application;
 
 import dev.xfj.Layer;
 import dev.xfj.LayerStack;
-import dev.xfj.events.Event;
-import dev.xfj.events.EventDispatcher;
-import dev.xfj.events.application.WindowCloseEvent;
-import dev.xfj.events.key.KeyPressedEvent;
-import dev.xfj.events.key.KeyReleasedEvent;
-import dev.xfj.events.key.KeyTypedEvent;
-import dev.xfj.events.mouse.MouseButtonPressedEvent;
-import dev.xfj.events.mouse.MouseButtonReleasedEvent;
-import dev.xfj.events.mouse.MouseMovedEvent;
-import dev.xfj.events.mouse.MouseScrolledEvent;
-import org.lwjgl.glfw.*;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWWindowCloseCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL41;
-
-import java.util.ListIterator;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -29,8 +19,7 @@ public class Application {
     private float timeStep;
     private float frameTime;
     private float lastFrameTime;
-    private LayerStack layerStack;
-    private EventCallBack.EventCallbackFn eventCallback;
+    private final LayerStack layerStack;
 
     public Application(ApplicationSpecification specification) {
         this.specification = specification;
@@ -56,7 +45,6 @@ public class Application {
             });
         }
         windowHandle = glfwCreateWindow(specification.width, specification.height, specification.name, NULL, NULL);
-        eventCallback = this::onEvent;
 
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 4);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 5);
@@ -67,11 +55,9 @@ public class Application {
         glfwSetWindowCloseCallback(windowHandle, new GLFWWindowCloseCallback() {
             @Override
             public void invoke(long window) {
-                WindowCloseEvent event = new WindowCloseEvent();
-                eventCallback.handle(event);
+                running = false;
             }
         });
-
     }
 
     public void run() {
@@ -94,22 +80,6 @@ public class Application {
         }
     }
 
-    public void onEvent(Event event) {
-        EventDispatcher eventDispatcher = new EventDispatcher(event);
-        eventDispatcher.dispatch(WindowCloseEvent.class, this::onWindowClose);
-
-        ListIterator<Layer> it = layerStack.getLayers().listIterator(layerStack.getLayers().size());
-        while (it.hasPrevious()) {
-            Layer layer = it.previous();
-
-            if (event.isHandled()) {
-                break;
-            }
-
-            layer.onEvent(event);
-        }
-
-    }
 
     public void pushLayer(Layer layer) {
         layerStack.pushLayer(layer);
@@ -125,11 +95,6 @@ public class Application {
 
     public static Application getInstance() {
         return instance;
-    }
-
-    private boolean onWindowClose(WindowCloseEvent windowCloseEvent) {
-        running = false;
-        return true;
     }
 
     public long getWindowHandle() {
