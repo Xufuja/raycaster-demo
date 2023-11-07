@@ -100,4 +100,8 @@ public class Application {
     public long getWindowHandle() {
         return windowHandle;
     }
+
+    public ApplicationSpecification getSpecification() {
+        return this.specification;
+    }
 }
