@@ -5,10 +5,12 @@ import dev.xfj.LayerStack;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWWindowCloseCallback;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL41;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Application {
@@ -51,6 +53,16 @@ public class Application {
 
         glfwMakeContextCurrent(windowHandle);
         GL.createCapabilities();
+
+        glfwSetWindowSizeCallback(windowHandle, new GLFWWindowSizeCallback() {
+            @Override
+            public void invoke(long window, int width, int height) {
+                specification.width = width;
+                specification.height = height;
+
+                glViewport(0, 0, specification.width, specification.height);
+            }
+        });
 
         glfwSetWindowCloseCallback(windowHandle, new GLFWWindowCloseCallback() {
             @Override

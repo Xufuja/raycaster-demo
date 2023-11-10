@@ -76,8 +76,8 @@ public class AppLayer implements Layer {
         playerAngle = 90.0f;
         playerDeltaX = cos(degreesToRadians(playerAngle));
         playerDeltaY = -sin(degreesToRadians(playerAngle));
-        MAP_W[19] = 4;
-        MAP_W[26] = 4;
+        MAP_W[19] = 4; //Door
+        MAP_W[26] = 4; //Door
 
         //Key
         spriteArray[0].type = 1;
@@ -177,7 +177,7 @@ public class AppLayer implements Layer {
             int ipy_add_yo = (int) ((playerY + yOffset) / 64.0);
             int ipy_sub_yo = (int) ((playerY - yOffset) / 64.0);
 
-            if (Input.isKeyDown(KeyCodes.W))                                                                  //move forward
+            if (Input.isKeyDown(KeyCodes.W))
             {
                 if (MAP_W[ipy * MAP_X + ipx_add_xo] == 0) {
                     playerX += playerDeltaX * 0.2 * fps;
@@ -187,7 +187,7 @@ public class AppLayer implements Layer {
                 }
             }
 
-            if (Input.isKeyDown(KeyCodes.S))                                                                  //move backward
+            if (Input.isKeyDown(KeyCodes.S))
             {
                 if (MAP_W[ipy * MAP_X + ipx_sub_xo] == 0) {
                     playerX -= playerDeltaX * 0.2 * fps;
@@ -197,7 +197,7 @@ public class AppLayer implements Layer {
                 }
             }
 
-            if (Input.isKeyDown(KeyCodes.E) && spriteArray[0].state == 0)             //open doors
+            if (Input.isKeyDown(KeyCodes.E) && spriteArray[0].state == 0)
             {
                 if (playerDeltaX < 0) {
                     xOffset = -25;
@@ -302,10 +302,10 @@ public class AppLayer implements Layer {
             sx = a;
             sy = b;
 
-            sx = (sx * 108.0f / sy) + (120 / 2); //convert to screen x,y
+            sx = (sx * 108.0f / sy) + (120 / 2);
             sy = (sz * 108.0f / sy) + (80 / 2);
 
-            int scale = (int) (32 * 80 / b);   //scale sprite based on distance
+            int scale = (int) (32 * 80 / b);
 
             if (scale < 0) {
                 scale = 0;
@@ -524,6 +524,7 @@ public class AppLayer implements Layer {
                 int red = (int) (allTextures[pixel + 0] * 0.7);
                 int green = (int) (allTextures[pixel + 1] * 0.7);
                 int blue = (int) (allTextures[pixel + 2] * 0.7);
+
                 glPointSize(8);
                 glColor3ub((byte) red, (byte) green, (byte) blue);
                 glBegin(GL_POINTS);
@@ -561,7 +562,7 @@ public class AppLayer implements Layer {
                     xo += 120;
                 }
 
-                xo = xo % 120; //return 0-120 based on player angle
+                xo = xo % 120;
                 int pixel = (y * 120 + xo) * 3;
                 int red = sky[pixel + 0];
                 int green = sky[pixel + 1];
